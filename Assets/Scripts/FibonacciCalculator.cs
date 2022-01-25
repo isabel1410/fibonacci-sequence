@@ -10,6 +10,7 @@ public class FibonacciCalculator : MonoBehaviour
 
     [SerializeField] FibonacciUI fibonacciUI;
 
+    // Sets all values to zero and updates the UI on start.
     private void Start()
     {
         olderPreviousNumber = 0;
@@ -18,25 +19,67 @@ public class FibonacciCalculator : MonoBehaviour
         fibonacciUI.UpdateView(currentFibonacciNumber);
     }
 
-    private uint CalculateNumber(uint olderPreviousNumber, uint previousNumber)
+    #region Calculate
+
+    // Calculates what number is next.
+    private uint CalculateNextNumber(uint olderPreviousNumber, uint previousNumber)
     {
-        uint newNumber = olderPreviousNumber + previousNumber;
-        switch (newNumber)
+        uint currentNumber = olderPreviousNumber + previousNumber;
+
+        switch (currentNumber)
         {
             case 0:
-                newNumber = 1;
-                return newNumber;
+                currentNumber = 1;
+                return currentNumber;
             default:
-                return newNumber;
+                return currentNumber;
         }
     }
 
-    public void UpdateNumbers()
+    // Calculates what number was previous.
+    private uint CalculatePreviousNumber(uint olderPreviousNumber, uint previousNumber)
     {
-        currentFibonacciNumber = CalculateNumber(olderPreviousNumber, previousNumber);
-        olderPreviousNumber = previousNumber;
-        previousNumber = currentFibonacciNumber;
+        // Returns 0 if previous number was 0
+        if (previousNumber == 0)
+        {
+            return 0;
+        }
+
+        uint newNumber = currentFibonacciNumber - olderPreviousNumber;
+
+        // ...Otherwise return a new number
+        return newNumber;
+    }
+
+    #endregion
+
+    #region Show
+
+    // Updates all values if button previous is clicked and shows current value.
+    public void ShowPreviousNumber()
+    {
+        // Can't go below zero
+        if (currentFibonacciNumber == 0)
+        {
+            return;
+        }
+
+        currentFibonacciNumber = CalculatePreviousNumber(olderPreviousNumber, previousNumber);
+        previousNumber = olderPreviousNumber;
+        olderPreviousNumber = currentFibonacciNumber - previousNumber;
 
         fibonacciUI.UpdateView(currentFibonacciNumber);
     }
+
+    // Updates all values if button next is clicked and shows current value.
+    public void ShowNextNumber()
+    {
+        olderPreviousNumber = previousNumber;
+        previousNumber = currentFibonacciNumber;
+        currentFibonacciNumber = CalculateNextNumber(olderPreviousNumber, previousNumber);
+
+        fibonacciUI.UpdateView(currentFibonacciNumber);
+    }
+
+    #endregion
 }
